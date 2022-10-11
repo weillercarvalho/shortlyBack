@@ -1,0 +1,25 @@
+{
+  "name": "projeto16-shortly",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "./src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./src/server.js"
+  },
+  "keywords": [
+    "HTML",
+    "CSS",
+    "Javascript",
+    "PostgreSQL",
+    "Express",
+    "Node",
+    "React"
+  ],
+  "author": "Weiller Carvalho",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
