@@ -45,7 +45,27 @@ console.log(isValidUrl(url));
 
 
 server.post(`/singup`, async (req,res) => {
-    res.send(`Salve.`)
+    const {name, email, password, confirmPassword} = req.body;
+    if (password !== confirmPassword) {
+        return res.status(422).send({message:`Senha e confirmacao de senha diferentes.`})
+    }
+    const gettingEmail = await connection.query(`SELECT * FROM users WHERE email = $1`,[email]);
+    if (gettingEmail.rows.length > 0) {
+        return res.status(409).send({message:`Email ja cadastrado.`})
+    }
+    const validation = postSingUpSchema.validate(req.body);
+    if (validation.error) {
+        const erroMessage = validation.error.details.map(v => v.message);
+        return res.status(422).send(console.log(erroMessage))
+    }
+    const hashingPassword = bcrypt.hashSync(password,12);
+    const hashingConfirmPassword = bcrypt.hashSync(confirmPassword,12);
+    try {
+        const query = await connection.query(`INSERT INTO users (name,email,password,"confirmPassword") VALUES($1,$2,$3,$4)`,[name,email,hashingPassword,hashingConfirmPassword]);
+        res.sendStatus(201);
+    } catch (error) {
+        return res.status(500).send(error.message)
+    }
 })
 
 server.listen(process.env.PORT, () => {
