@@ -121,6 +121,40 @@ server.post(`/urls/shorten`, async(req,res) => {
     } catch (error) {
         return res.status(500).send(error.message);
     }
+});
+
+server.get(`/urls/:id`, async (req,res) => {
+    const {id} = req.params;
+    if (isNaN(id)) {
+        return res.sendStatus(401);
+    };
+    const gettingId = await connection.query(`SELECT * FROM urls WHERE urls.id = $1;`, [id]);
+    if (!gettingId.rows[0].shortUrl) {
+        return res.sendStatus(404);
+    }
+    try {
+        const query = await connection.query(`SELECT urls.id, urls."shortUrl", urls.url FROM urls WHERE urls.id = $1;`,[id]);
+        return res.send(query.rows[0])
+    } catch (error) {
+        return res.status(500).send(error.message);
+    }
+});
+
+server.get(`/urls/open/:shortUrl`, async (req,res) => {
+    const {shortUrl} = req.params;
+    const gettingShortUrl = await connection.query(`SELECT * FROM urls WHERE urls."shortUrl" = $1;`,[shortUrl]);
+    if (gettingShortUrl.rows.length === 0) {
+        return res.sendStatus(404);
+    }
+    try {
+        return res.redirect(`${shortUrl}`)
+    } catch (error) {
+        return res.status(500).send(error.message)
+    }
+})
+
+server.delete(`/urls/:id`, async (req,res) => {
+    
 })
 
 server.listen(process.env.PORT, () => {
