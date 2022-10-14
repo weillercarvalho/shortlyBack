@@ -77,10 +77,9 @@ server.post(`/singin`, async (req,res) => {
     }
     try {
         const gettingEmail = await connection.query(`SELECT * FROM users WHERE email = $1;`,[email]);
-        console.log(gettingEmail.rows)
+
         if (gettingEmail.rows.length !== 0 && bcrypt.compareSync(password,gettingEmail.rows[0].password)) {
             const token = generateToken(email);
-            console.log(token)
             const query = await connection.query(`INSERT INTO sessions ("userId",email,password,token) VALUES($1,$2,$3,$4);`,[gettingEmail.rows[0].id, email, gettingEmail.rows[0].password, token]);
             return res.status(200).send({token})
         }
@@ -114,7 +113,7 @@ server.post(`/urls/shorten`, async(req,res) => {
     try {
         let shorturl = url;
         shorturl = nanoid();
-        const query = await connection.query(`INSERT INTO urls ("sessionId",url,"shortUrl") VALUES($1,$2,$3);`,[gettingToken.rows[0].id, url, shorturl]);
+        const query = await connection.query(`INSERT INTO urls ("sessionId",url,"shortUrl",token) VALUES($1,$2,$3,$4);`,[gettingToken.rows[0].id, url, shorturl,token]);
         const gettingUrl = await connection.query(`SELECT * FROM urls WHERE url = $1 AND "shortUrl" = $2;`,[url,shorturl]);
         return res.send({shortUrl: gettingUrl.rows[0].shortUrl})
     } catch (error) {
@@ -153,7 +152,30 @@ server.get(`/urls/open/:shortUrl`, async (req,res) => {
 })
 
 server.delete(`/urls/:id`, async (req,res) => {
-    return res.send(`Bora deletar.`)
+    const {authorization} = req.headers;
+    const {id} = req.params;
+    const token = authorization?.replace(`Bearer `, ``);
+    if (!token) {
+        return res.sendStatus(401);
+    }
+    if (isNaN(id)) {
+        return res.sendStatus(401);
+    };
+
+    try {
+        const gettingToken = await connection.query (`SELECT * FROM sessions ORDER BY id DESC LIMIT 1;`,);
+        if (gettingToken.rows[0].token !== token) {
+            return res.sendStatus(401);
+        }
+        const gettingSecondToken = await connection.query (`SELECT * FROM urls WHERE id = $1 AND token = $2`,[id, token]);
+        if (gettingSecondToken.rows.length === 0) {
+            return res.sendStatus(404)
+        }
+        const query = await connection.query(`DELETE FROM urls WHERE id = $1;`,[id]);
+        return res.sendStatus(204)
+    } catch (error) {
+        return res.status(500).send(error.message)
+    }
 })
 
 server.listen(process.env.PORT, () => {
