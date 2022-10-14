@@ -103,12 +103,11 @@ server.post(`/urls/shorten`, async(req,res) => {
         return res.sendStatus(422);
     }
     if (token !== gettingToken.rows[0].token) {
-        return res.status(401).send(`Esse`);
+        return res.sendStatus(401);
     }
     if (!token) {
-        return res.status(401).send(`O outro`);
+        return res.sendStatus(401);
     }
-
     if(!isValidUrl(url)) {
         return res.status(422).send({message: `Formato de URL invalido.`})
     }
@@ -154,7 +153,7 @@ server.get(`/urls/open/:shortUrl`, async (req,res) => {
 })
 
 server.delete(`/urls/:id`, async (req,res) => {
-    
+    return res.send(`Bora deletar.`)
 })
 
 server.listen(process.env.PORT, () => {
