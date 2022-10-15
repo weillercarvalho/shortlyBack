@@ -190,7 +190,14 @@ server.get(`/users/me`, async (req,res) => {
         return res.sendStatus(401);
     }
     try {
-        
+        const users = await connection.query(`SELECT users.id AS id, users.name AS name, SUM(urls."visitCount") AS "visitCount" FROM urls JOIN users ON users.id = urls."userId" WHERE urls.token = $1 GROUP BY users.id;`, [token]);
+        const shortenedInfos = await connection.query(`SELECT urls.id, urls."shortUrl", urls.url, urls."visitCount" FROM urls WHERE urls."userId" = $1;`,[users.rows[0].id]);
+        return res.send({
+            id: users.rows[0].id,
+            name: users.rows[0].name,
+            visitCount: users.rows[0].visitCount,
+            shortenedUrls: shortenedInfos.rows
+        })
     } catch (error) {
         return res.status(500).send(error.message);
     }
