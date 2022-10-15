@@ -203,6 +203,23 @@ server.get(`/users/me`, async (req,res) => {
     }
 })
 
+server.get(`/ranking`, async (req,res) => {
+    try {
+        const query = await connection.query(`SELECT users.id AS id, users.name AS name, COUNT(urls."userId") AS "linksCount", SUM (urls."visitCount") AS "visitCount" FROM users LEFT JOIN urls ON users.id = urls."userId" GROUP BY users.id ORDER BY "visitCount" LIMIT 10;`);
+        query.rows.forEach(v => {
+            if (v.visitCount === null) {
+                v.visitCount = "0";
+            }
+            else if (v.linksCount === null) {
+                v.linksCount = "0";
+            }
+        })
+        return res.send(query.rows)
+    } catch (error) {
+        return res.status(500).send(error.message)
+    }
+})
+
 server.listen(process.env.PORT, () => {
     console.log(`Listen on the ${process.env.PORT}`)
 })
