@@ -113,7 +113,7 @@ server.post(`/urls/shorten`, async(req,res) => {
     try {
         let shorturl = url;
         shorturl = nanoid();
-        const query = await connection.query(`INSERT INTO urls ("sessionId",url,"shortUrl",token) VALUES($1,$2,$3,$4);`,[gettingToken.rows[0].id, url, shorturl,token]);
+        const query = await connection.query(`INSERT INTO urls ("sessionId","userId",url,"shortUrl",token) VALUES($1,$2,$3,$4,$5);`,[gettingToken.rows[0].id, gettingToken.rows[0].userId, url, shorturl,token]);
         const gettingUrl = await connection.query(`SELECT * FROM urls WHERE url = $1 AND "shortUrl" = $2;`,[url,shorturl]);
         return res.send({shortUrl: gettingUrl.rows[0].shortUrl})
     } catch (error) {
@@ -145,7 +145,8 @@ server.get(`/urls/open/:shortUrl`, async (req,res) => {
         return res.sendStatus(404);
     }
     try {
-        return res.redirect(`${shortUrl}`)
+        const query = await connection.query(`UPDATE urls SET "visitCount" = "visitCount" + 1 WHERE "shortUrl" = $1;`,[shortUrl])
+        return res.redirect(gettingShortUrl.rows[0].url)
     } catch (error) {
         return res.status(500).send(error.message)
     }
@@ -175,6 +176,23 @@ server.delete(`/urls/:id`, async (req,res) => {
         return res.sendStatus(204)
     } catch (error) {
         return res.status(500).send(error.message)
+    }
+});
+
+server.get(`/users/me`, async (req,res) => {
+    const {authorization} = req.headers;
+    const token = authorization?.replace(`Bearer `, ``);
+    if(!token) {
+        return res.sendStatus(401);
+    }
+    const gettingToken = await connection.query (`SELECT * FROM sessions ORDER BY id DESC LIMIT 1;`,);
+    if (gettingToken.rows[0].token !== token) {
+        return res.sendStatus(401);
+    }
+    try {
+        
+    } catch (error) {
+        return res.status(500).send(error.message);
     }
 })
 
