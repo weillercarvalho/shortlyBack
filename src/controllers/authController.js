@@ -1,4 +1,3 @@
-import { connection } from "../database/db.js";
 import bcrypt from "bcrypt";
 import { generateToken } from "../services/jwt.js";
 import * as authRepository from  "../repositorys/authRepository.js"
