@@ -35,7 +35,7 @@ async function usersMe(req, res) {
 async function ranking(req, res) {
   try {
     const query = await connection.query(
-      `SELECT users.id AS id, users.name AS name, COUNT(urls."userId") AS "linksCount", SUM (urls."visitCount") AS "visitCount" FROM users LEFT JOIN urls ON users.id = urls."userId" GROUP BY users.id ORDER BY "visitCount" LIMIT 10;`
+      `SELECT users.id AS id, users.name AS name, COUNT(urls."userId") AS "linksCount", SUM (urls."visitCount") AS "visitCount" FROM users LEFT JOIN urls ON users.id = urls."userId" GROUP BY users.id ORDER BY "visitCount" DESC LIMIT 10;`
     );
     query.rows.forEach((v) => {
       if (v.visitCount === null) {

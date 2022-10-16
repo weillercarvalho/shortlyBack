@@ -1,5 +1,5 @@
 import { connection } from "../database/db.js";
-import { isValidUrl } from "../schemas/postUrlSchema.js";
+import { isValidUrl, postUrlSchema } from "../schemas/postUrlSchema.js";
 import { nanoid } from "nanoid";
 
 async function urlShorten(req, res) {
