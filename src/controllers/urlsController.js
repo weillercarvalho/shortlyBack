@@ -1,14 +1,13 @@
 import { connection } from "../database/db.js";
 import { isValidUrl, postUrlSchema } from "../schemas/postUrlSchema.js";
 import { nanoid } from "nanoid";
+import * as urlsRepository from "../repositorys/urlsRepository.js"
 
 async function urlShorten(req, res) {
   let { url } = req.body;
   const { authorization } = req.headers;
   const token = authorization?.replace(`Bearer `, ``);
-  const gettingToken = await connection.query(
-    `SELECT * FROM sessions ORDER BY id DESC LIMIT 1;`
-  );
+  const gettingToken = await urlsRepository.firstQuery();
   const validation = postUrlSchema.validate(req.body, { abortEarly: false });
   if (validation.error) {
     return res.sendStatus(422);
