@@ -31,13 +31,6 @@ async function usersMe(req, res) {
 async function ranking(req, res) {
   try {
     const query = await usersRepository.fourthQuery();
-    query.rows.forEach((v) => {
-      if (v.visitCount === null) {
-        v.visitCount = "0";
-      } else if (v.linksCount === null) {
-        v.linksCount = "0";
-      }
-    });
     return res.send(query.rows);
   } catch (error) {
     return res.status(500).send(error.message);
