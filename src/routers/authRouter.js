@@ -1,12 +1,12 @@
 import express from "express";
 import { singInValidation } from "../middlewares/singInValidationMiddleware.js";
 import { singUpValidation } from "../middlewares/singUpValidationMiddleware.js";
-import { singIn, singUp } from "../controllers/authController.js";
+import { signIn, signUp } from "../controllers/authController.js";
 
 const authRouter = express.Router();
 
-authRouter.post(`/singup`, singUpValidation, singUp);
+authRouter.post(`/signup`, singUpValidation, signUp);
 
-authRouter.post(`/singin`, singInValidation, singIn);
+authRouter.post(`/signin`, singInValidation, signIn);
 
 export { authRouter };

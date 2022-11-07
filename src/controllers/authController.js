@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { generateToken } from "../services/jwt.js";
 import * as authRepository from  "../repositorys/authRepository.js"
 
-async function singUp(req, res) {
+async function signUp(req, res) {
   const { name, email, password, confirmPassword } = req.body;
   if (password !== confirmPassword) {
     return res
@@ -23,7 +23,7 @@ async function singUp(req, res) {
   }
 }
 
-async function singIn(req, res) {
+async function signIn(req, res) {
   const { email, password } = req.body;
   try {
     const gettingEmail = await authRepository.thirdQuery(email)
@@ -44,4 +44,4 @@ async function singIn(req, res) {
   }
 }
 
-export { singUp, singIn };
+export { signUp, signIn };
